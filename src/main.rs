@@ -14,8 +14,19 @@ use bevy::{
         renderer::RenderDevice,
     },
 };
+use bevy_inspector_egui::{widgets::InspectorQuery, Inspectable, InspectorPlugin};
 
 use camera::{pan_orbit_camera, PanOrbitCamera};
+
+#[derive(Inspectable, Default)]
+struct MaterialsInspector {
+    materials: InspectorQuery<&'static mut Handle<CustomMaterial>>,
+}
+
+// #[derive(Component, Inspectable, Default)]
+// struct Label {
+//     value: String,
+// }
 
 fn main() {
     App::new()
@@ -24,6 +35,7 @@ fn main() {
         .add_startup_system(spawn_camera)
         .add_startup_system(spawn_scene)
         .add_system(pan_orbit_camera)
+        .add_plugin(InspectorPlugin::<MaterialsInspector>::new())
         .run();
 }
 
@@ -133,10 +145,11 @@ fn spawn_scene(
         .insert_bundle((NotShadowCaster, NotShadowReceiver));
 }
 
-#[derive(Debug, Clone, TypeUuid, AsStd140)]
+#[derive(Debug, Clone, TypeUuid, AsStd140, Inspectable)]
 #[uuid = "18600cbe-b8b5-41e8-bbf6-1cad0005b309"]
 struct CustomMaterial {
     color: Vec4,
+    #[inspectable(min = 0.0, max = 10.0)]
     scale: f32,
 }
 

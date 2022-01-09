@@ -32,14 +32,14 @@ fn vertex(vertex: Vertex) -> VertexOutput {
     out.clip_position = view.view_proj * world_position;
     // out.normal = vec3<f32>(1.0, 0.0, 0.0); // red
     // out.normal = vertex.normal;
-    out.normal = material.color.xyz;
-    // out.uv = vertex.uv * material.scale;
+    // out.normal = material.color.xyz;
+    out.uv = vertex.uv * material.scale;
     return out;
 }
 
 [[stage(fragment)]]
 fn fragment(in: VertexOutput) -> [[location(0)]] vec4<f32> {
-    return vec4<f32>(in.normal, 1.0);
-    // return vec4<f32>(in.uv, 0.0, 1.0);
+    // return vec4<f32>(in.normal, 1.0);
+    return vec4<f32>(in.uv, 0.0, 1.0);
 }
 
