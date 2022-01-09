@@ -104,6 +104,21 @@ fn spawn_scene(
             ..Default::default()
         })
         .insert_bundle((NotShadowCaster, NotShadowReceiver));
+
+    // white cube
+    commands
+        .spawn()
+        .insert_bundle(MaterialMeshBundle {
+            mesh: meshes.add(Mesh::from(shape::Cube {
+                ..Default::default()
+            })),
+            transform: Transform::from_xyz(0.0, 1.0, 3.0),
+            material: custom_materials.add(CustomMaterial {
+                color: Color::WHITE,
+            }),
+            ..Default::default()
+        })
+        .insert_bundle((NotShadowCaster, NotShadowReceiver));
 }
 
 #[derive(Debug, Clone, TypeUuid)]
@@ -153,6 +168,10 @@ impl RenderAsset for CustomMaterial {
 }
 
 impl Material for CustomMaterial {
+    fn vertex_shader(asset_server: &AssetServer) -> Option<Handle<Shader>> {
+        Some(asset_server.load("shaders/custom_material.wgsl"))
+    }
+
     fn fragment_shader(asset_server: &AssetServer) -> Option<Handle<Shader>> {
         Some(asset_server.load("shaders/custom_material.wgsl"))
     }
@@ -165,7 +184,7 @@ impl Material for CustomMaterial {
         render_device.create_bind_group_layout(&BindGroupLayoutDescriptor {
             entries: &[BindGroupLayoutEntry {
                 binding: 0,
-                visibility: ShaderStages::FRAGMENT,
+                visibility: ShaderStages::VERTEX_FRAGMENT,
                 ty: BindingType::Buffer {
                     ty: BufferBindingType::Uniform,
                     has_dynamic_offset: false,

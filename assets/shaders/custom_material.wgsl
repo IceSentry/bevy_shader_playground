@@ -37,7 +37,7 @@ struct Vertex {
 
 struct VertexOutput {
     [[builtin(position)]] clip_position: vec4<f32>;
-    [[location(0)]] uv: vec2<f32>;
+    [[location(0)]] normal: vec3<f32>;
 };
 
 [[stage(vertex)]]
@@ -46,12 +46,14 @@ fn vertex(vertex: Vertex) -> VertexOutput {
 
     var out: VertexOutput;
     out.clip_position = view.view_proj * world_position;
-    out.uv = vertex.uv;
+    // out.normal = vec3<f32>(1.0, 0.0, 0.0); // red
+    // out.normal = vertex.normal;
+    out.normal = material.color.xyz;
     return out;
 }
 
 [[stage(fragment)]]
-fn fragment() -> [[location(0)]] vec4<f32> {
-    return material.color;
+fn fragment(in: VertexOutput) -> [[location(0)]] vec4<f32> {
+    return vec4<f32>(in.normal, 1.0);
 }
 
