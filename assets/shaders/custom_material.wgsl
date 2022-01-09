@@ -1,27 +1,10 @@
-// #import bevy_pbr::mesh_view_bind_group
-struct View {
-    view_proj: mat4x4<f32>;
-    inverse_view: mat4x4<f32>;
-    projection: mat4x4<f32>;
-    world_position: vec3<f32>;
-    near: f32;
-    far: f32;
-    width: f32;
-    height: f32;
-};
-
-// #import bevy_pbr::mesh_struct
-struct Mesh {
-    model: mat4x4<f32>;
-};
+#import bevy_pbr::mesh_view_bind_group
+#import bevy_pbr::mesh_struct
 
 struct CustomMaterial {
     color: vec4<f32>;
+    scale: f32;
 };
-
-
-[[group(0), binding(0)]]
-var<uniform> view: View;
 
 [[group(1), binding(0)]]
 var<uniform> material: CustomMaterial;
@@ -38,6 +21,7 @@ struct Vertex {
 struct VertexOutput {
     [[builtin(position)]] clip_position: vec4<f32>;
     [[location(0)]] normal: vec3<f32>;
+    [[location(1)]] uv: vec2<f32>;
 };
 
 [[stage(vertex)]]
@@ -49,11 +33,13 @@ fn vertex(vertex: Vertex) -> VertexOutput {
     // out.normal = vec3<f32>(1.0, 0.0, 0.0); // red
     // out.normal = vertex.normal;
     out.normal = material.color.xyz;
+    // out.uv = vertex.uv * material.scale;
     return out;
 }
 
 [[stage(fragment)]]
 fn fragment(in: VertexOutput) -> [[location(0)]] vec4<f32> {
     return vec4<f32>(in.normal, 1.0);
+    // return vec4<f32>(in.uv, 0.0, 1.0);
 }
 

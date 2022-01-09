@@ -28,7 +28,7 @@ fn main() {
 }
 
 fn spawn_camera(mut commands: Commands) {
-    let camera_translation = Vec3::new(-3.0, 3.5, 10.0);
+    let camera_translation = Vec3::new(3.0, 3.5, 10.0);
     let radius = camera_translation.length();
     commands
         .spawn_bundle(PerspectiveCameraBundle {
@@ -76,7 +76,7 @@ fn spawn_scene(
         .insert_bundle(MaterialMeshBundle {
             mesh: sphere_mesh.clone(),
             transform: Transform::from_xyz(-2.25, 1.0, 0.0),
-            material: custom_materials.add(CustomMaterial { color: Color::RED }),
+            material: custom_materials.add(CustomMaterial::new(Color::RED, 1.0)),
             ..Default::default()
         })
         .insert_bundle((NotShadowCaster, NotShadowReceiver));
@@ -87,9 +87,7 @@ fn spawn_scene(
         .insert_bundle(MaterialMeshBundle {
             mesh: sphere_mesh.clone(),
             transform: Transform::from_xyz(0.0, 1.0, 0.0),
-            material: custom_materials.add(CustomMaterial {
-                color: Color::GREEN,
-            }),
+            material: custom_materials.add(CustomMaterial::new(Color::GREEN, 1.0)),
             ..Default::default()
         })
         .insert_bundle((NotShadowCaster, NotShadowReceiver));
@@ -100,7 +98,7 @@ fn spawn_scene(
         .insert_bundle(MaterialMeshBundle {
             mesh: sphere_mesh,
             transform: Transform::from_xyz(2.25, 1.0, 0.0),
-            material: custom_materials.add(CustomMaterial { color: Color::BLUE }),
+            material: custom_materials.add(CustomMaterial::new(Color::BLUE, 1.0)),
             ..Default::default()
         })
         .insert_bundle((NotShadowCaster, NotShadowReceiver));
@@ -113,18 +111,48 @@ fn spawn_scene(
                 ..Default::default()
             })),
             transform: Transform::from_xyz(0.0, 1.0, 3.0),
-            material: custom_materials.add(CustomMaterial {
-                color: Color::WHITE,
-            }),
+            material: custom_materials.add(CustomMaterial::new(Color::WHITE, 2.0)),
+            ..Default::default()
+        })
+        .insert_bundle((NotShadowCaster, NotShadowReceiver));
+
+    // plane
+    commands
+        .spawn()
+        .insert_bundle(MaterialMeshBundle {
+            mesh: meshes.add(Mesh::from(shape::Plane { size: 2.5 })),
+            transform: Transform::from_xyz(0.0, 2.0, -5.0).with_rotation(Quat::from_euler(
+                EulerRot::XYZ,
+                std::f32::consts::FRAC_PI_2,
+                0.0,
+                0.0,
+            )),
+            material: custom_materials.add(CustomMaterial::new(Color::WHITE, 2.0)),
             ..Default::default()
         })
         .insert_bundle((NotShadowCaster, NotShadowReceiver));
 }
 
-#[derive(Debug, Clone, TypeUuid)]
+#[derive(Debug, Clone, TypeUuid, AsStd140)]
 #[uuid = "18600cbe-b8b5-41e8-bbf6-1cad0005b309"]
 struct CustomMaterial {
-    color: Color,
+    color: Vec4,
+    scale: f32,
+}
+
+impl CustomMaterial {
+    fn new(color: Color, scale: f32) -> Self {
+        Self {
+            color: Vec4::from_slice(&color.as_linear_rgba_f32()),
+            scale,
+        }
+    }
+}
+
+impl Default for CustomMaterial {
+    fn default() -> Self {
+        Self::new(Color::CYAN, 1.0)
+    }
 }
 
 #[derive(Clone)]
@@ -145,10 +173,9 @@ impl RenderAsset for CustomMaterial {
         extracted_asset: Self::ExtractedAsset,
         (render_device, material_pipeline): &mut SystemParamItem<Self::Param>,
     ) -> Result<Self::PreparedAsset, PrepareAssetError<Self::ExtractedAsset>> {
-        let color = Vec4::from_slice(&extracted_asset.color.as_linear_rgba_f32());
         let buffer = render_device.create_buffer_with_data(&BufferInitDescriptor {
-            contents: color.as_std140().as_bytes(),
-            label: None,
+            contents: extracted_asset.as_std140().as_bytes(),
+            label: Some("CustomMaterial"),
             usage: BufferUsages::UNIFORM | BufferUsages::COPY_DST,
         });
         let bind_group = render_device.create_bind_group(&BindGroupDescriptor {
@@ -188,7 +215,7 @@ impl Material for CustomMaterial {
                 ty: BindingType::Buffer {
                     ty: BufferBindingType::Uniform,
                     has_dynamic_offset: false,
-                    min_binding_size: BufferSize::new(Vec4::std140_size_static() as u64),
+                    min_binding_size: BufferSize::new(CustomMaterial::std140_size_static() as u64),
                 },
                 count: None,
             }],
