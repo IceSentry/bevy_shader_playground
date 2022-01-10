@@ -1,5 +1,6 @@
 use bevy::{
     ecs::system::{lifetimeless::SRes, SystemParamItem},
+    math::Vec4,
     pbr::MaterialPipeline,
     prelude::*,
     reflect::TypeUuid,
@@ -12,26 +13,40 @@ use bevy::{
         renderer::RenderDevice,
     },
 };
+use bevy_egui::egui::{self, CollapsingHeader, Ui};
+
+use crate::Label;
+
+pub fn inspector(ui: &mut Ui, label: &Label, material: &mut CustomMaterial) {
+    CollapsingHeader::new(label.0.as_str())
+        .default_open(true)
+        .show(ui, |ui| {
+            ui.horizontal(|ui| {
+                ui.label("Color: ");
+                let mut color = material.color.to_array();
+                ui.color_edit_button_rgba_unmultiplied(&mut color);
+                material.color = Vec4::from_slice(&color);
+            });
+            ui.add(egui::Slider::new(&mut material.scale, 0.0..=5.0).text("Scale: "));
+            ui.add(egui::Slider::new(&mut material.offset, 0.0..=5.0).text("Scale: "));
+        });
+}
 
 #[derive(Debug, Clone, TypeUuid, AsStd140)]
 #[uuid = "18600cbe-b8b5-41e8-bbf6-1cad0005b309"]
 pub struct CustomMaterial {
     pub color: Vec4,
     pub scale: f32,
+    pub offset: f32,
 }
 
 impl CustomMaterial {
-    pub fn new(color: Color, scale: f32) -> Self {
+    pub fn new(color: Color) -> Self {
         Self {
             color: Vec4::from_slice(&color.as_linear_rgba_f32()),
-            scale,
+            scale: 1.0,
+            offset: 0.0,
         }
-    }
-}
-
-impl Default for CustomMaterial {
-    fn default() -> Self {
-        Self::new(Color::CYAN, 1.0)
     }
 }
 

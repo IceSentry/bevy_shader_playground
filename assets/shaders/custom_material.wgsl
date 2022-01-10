@@ -33,6 +33,11 @@ fn vertex(vertex: Vertex) -> VertexOutput {
     // out.normal = vec3<f32>(1.0, 0.0, 0.0); // red
     // out.normal = vertex.normal;
     // out.normal = material.color.xyz;
+    // out.world_normal = mat3x3<f32>(
+    //     mesh.inverse_transpose_model[0].xyz,
+    //     mesh.inverse_transpose_model[1].xyz,
+    //     mesh.inverse_transpose_model[2].xyz
+    // ) * vertex.normal;
     out.uv = vertex.uv * material.scale;
     return out;
 }

@@ -79,7 +79,7 @@ fn spawn_scene(
         .insert_bundle(MaterialMeshBundle {
             mesh: sphere_mesh.clone(),
             transform: Transform::from_xyz(-2.25, 1.0, 0.0),
-            material: custom_materials.add(CustomMaterial::new(Color::RED, 1.0)),
+            material: custom_materials.add(CustomMaterial::new(Color::RED)),
             ..Default::default()
         })
         .insert_bundle((NotShadowCaster, NotShadowReceiver));
@@ -91,7 +91,7 @@ fn spawn_scene(
         .insert_bundle(MaterialMeshBundle {
             mesh: sphere_mesh.clone(),
             transform: Transform::from_xyz(0.0, 1.0, 0.0),
-            material: custom_materials.add(CustomMaterial::new(Color::GREEN, 1.0)),
+            material: custom_materials.add(CustomMaterial::new(Color::GREEN)),
             ..Default::default()
         })
         .insert_bundle((NotShadowCaster, NotShadowReceiver));
@@ -103,7 +103,7 @@ fn spawn_scene(
         .insert_bundle(MaterialMeshBundle {
             mesh: sphere_mesh,
             transform: Transform::from_xyz(2.25, 1.0, 0.0),
-            material: custom_materials.add(CustomMaterial::new(Color::BLUE, 1.0)),
+            material: custom_materials.add(CustomMaterial::new(Color::BLUE)),
             ..Default::default()
         })
         .insert_bundle((NotShadowCaster, NotShadowReceiver));
@@ -117,7 +117,7 @@ fn spawn_scene(
                 ..Default::default()
             })),
             transform: Transform::from_xyz(0.0, 1.0, 3.0),
-            material: custom_materials.add(CustomMaterial::new(Color::WHITE, 2.0)),
+            material: custom_materials.add(CustomMaterial::new(Color::WHITE)),
             ..Default::default()
         })
         .insert_bundle((NotShadowCaster, NotShadowReceiver));
@@ -134,7 +134,7 @@ fn spawn_scene(
                 0.0,
                 0.0,
             )),
-            material: custom_materials.add(CustomMaterial::new(Color::WHITE, 2.0)),
+            material: custom_materials.add(CustomMaterial::new(Color::WHITE)),
             ..Default::default()
         })
         .insert_bundle((NotShadowCaster, NotShadowReceiver));
