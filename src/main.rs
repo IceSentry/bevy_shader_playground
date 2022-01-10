@@ -1,5 +1,6 @@
 mod camera;
 mod custom_material;
+mod gradient;
 mod inspector;
 
 use bevy::{
@@ -11,6 +12,7 @@ use bevy_egui::EguiPlugin;
 
 use camera::{pan_orbit_camera, PanOrbitCamera};
 use custom_material::CustomMaterial;
+use gradient::GradientMaterial;
 use inspector::inspector_panel;
 
 #[derive(Component)]
@@ -20,10 +22,12 @@ fn main() {
     App::new()
         .add_plugins(DefaultPlugins)
         .add_plugin(EguiPlugin)
-        .add_plugin(MaterialPlugin::<CustomMaterial>::default())
         .add_startup_system(spawn_camera)
-        .add_startup_system(spawn_scene)
         .add_system(pan_orbit_camera)
+        .add_plugin(MaterialPlugin::<CustomMaterial>::default())
+        .add_startup_system(spawn_scene)
+        .add_plugin(MaterialPlugin::<GradientMaterial>::default())
+        .add_startup_system(spawn_scene_gradient)
         .add_system(inspector_panel)
         .add_system(exit_on_esc_system)
         .run();
@@ -135,6 +139,29 @@ fn spawn_scene(
                 0.0,
             )),
             material: custom_materials.add(CustomMaterial::new(Color::WHITE)),
+            ..Default::default()
+        })
+        .insert_bundle((NotShadowCaster, NotShadowReceiver));
+}
+
+fn spawn_scene_gradient(
+    mut commands: Commands,
+    mut meshes: ResMut<Assets<Mesh>>,
+    mut gradient_materials: ResMut<Assets<GradientMaterial>>,
+) {
+    // gradient plane
+    commands
+        .spawn()
+        .insert(Label("Gradient plane".into()))
+        .insert_bundle(MaterialMeshBundle {
+            mesh: meshes.add(Mesh::from(shape::Plane { size: 2.5 })),
+            transform: Transform::from_xyz(3.0, 2.0, -5.0).with_rotation(Quat::from_euler(
+                EulerRot::XYZ,
+                std::f32::consts::FRAC_PI_2,
+                0.0,
+                0.0,
+            )),
+            material: gradient_materials.add(GradientMaterial::new(Color::BLACK, Color::WHITE)),
             ..Default::default()
         })
         .insert_bundle((NotShadowCaster, NotShadowReceiver));
