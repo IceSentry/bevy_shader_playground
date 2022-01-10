@@ -161,7 +161,7 @@ fn spawn_scene_gradient(
                 0.0,
                 0.0,
             )),
-            material: gradient_materials.add(GradientMaterial::new(Color::BLACK, Color::WHITE)),
+            material: gradient_materials.add(GradientMaterial::new(Color::RED, Color::BLUE)),
             ..Default::default()
         })
         .insert_bundle((NotShadowCaster, NotShadowReceiver));

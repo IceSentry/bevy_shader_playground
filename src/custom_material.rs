@@ -27,8 +27,14 @@ pub fn inspector(ui: &mut Ui, label: &Label, material: &mut CustomMaterial) {
                 ui.color_edit_button_rgba_unmultiplied(&mut color);
                 material.color = Vec4::from_slice(&color);
             });
-            ui.add(egui::Slider::new(&mut material.scale, 0.0..=5.0).text("Scale: "));
-            ui.add(egui::Slider::new(&mut material.offset, 0.0..=5.0).text("Scale: "));
+            ui.horizontal(|ui| {
+                ui.label("Scale: ");
+                ui.add(egui::Slider::new(&mut material.scale, 0.0..=5.0));
+            });
+            ui.horizontal(|ui| {
+                ui.label("Offset: ");
+                ui.add(egui::Slider::new(&mut material.offset, -5.0..=5.0));
+            });
         });
 }
 

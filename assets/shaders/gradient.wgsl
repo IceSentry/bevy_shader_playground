@@ -4,6 +4,8 @@
 struct CustomMaterial {
     color_a: vec4<f32>;
     color_b: vec4<f32>;
+    color_start: f32;
+    color_end: f32;
 };
 
 [[group(1), binding(0)]]
@@ -33,13 +35,15 @@ fn vertex(vertex: Vertex) -> VertexOutput {
     return out;
 }
 
-fn lerp(v0: vec4<f32>, v1: vec4<f32>, t: vec4<f32>) -> vec4<f32> {
-  return (1.0 - t) * v0 + t * v1;
+fn inverse_lerp(a: f32, b: f32, v: f32) -> f32 {
+  return (v - a)/(b - a);
 }
 
 [[stage(fragment)]]
 fn fragment(in: VertexOutput) -> [[location(0)]] vec4<f32> {
     // return smoothStep(material.color_a, material.color_b, in.uv.xxxx);
-    return lerp(material.color_a, material.color_b, in.uv.xxxx);
+    var t = clamp(inverse_lerp(material.color_start, material.color_end, in.uv.x), 0.0, 1.0);
+    // t = fract(t);
+    return mix(material.color_a, material.color_b, vec4<f32>(t));
 }
 

@@ -12,7 +12,7 @@ use bevy::{
         renderer::RenderDevice,
     },
 };
-use bevy_egui::egui::{CollapsingHeader, Ui};
+use bevy_egui::egui::{self, CollapsingHeader, Ui};
 
 use crate::Label;
 
@@ -32,6 +32,14 @@ pub fn inspector(ui: &mut Ui, label: &Label, material: &mut GradientMaterial) {
                 ui.color_edit_button_rgba_unmultiplied(&mut color);
                 material.color_b = Vec4::from_slice(&color);
             });
+            ui.horizontal(|ui| {
+                ui.label("Color start: ");
+                ui.add(egui::Slider::new(&mut material.color_start, 0.0..=1.0));
+            });
+            ui.horizontal(|ui| {
+                ui.label("Color end: ");
+                ui.add(egui::Slider::new(&mut material.color_end, 0.0..=1.0));
+            });
         });
 }
 
@@ -40,6 +48,8 @@ pub fn inspector(ui: &mut Ui, label: &Label, material: &mut GradientMaterial) {
 pub struct GradientMaterial {
     pub color_a: Vec4,
     pub color_b: Vec4,
+    pub color_start: f32,
+    pub color_end: f32,
 }
 
 impl GradientMaterial {
@@ -47,6 +57,8 @@ impl GradientMaterial {
         Self {
             color_a: Vec4::from_slice(&color_a.as_linear_rgba_f32()),
             color_b: Vec4::from_slice(&color_b.as_linear_rgba_f32()),
+            color_start: 0.0,
+            color_end: 1.0,
         }
     }
 }

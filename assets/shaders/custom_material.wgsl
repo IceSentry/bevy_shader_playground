@@ -4,6 +4,7 @@
 struct CustomMaterial {
     color: vec4<f32>;
     scale: f32;
+    offset: f32;
 };
 
 [[group(1), binding(0)]]
@@ -22,6 +23,7 @@ struct VertexOutput {
     [[builtin(position)]] clip_position: vec4<f32>;
     [[location(0)]] normal: vec3<f32>;
     [[location(1)]] uv: vec2<f32>;
+    [[location(2)]] color: vec4<f32>;
 };
 
 [[stage(vertex)]]
@@ -30,15 +32,15 @@ fn vertex(vertex: Vertex) -> VertexOutput {
 
     var out: VertexOutput;
     out.clip_position = view.view_proj * world_position;
-    // out.normal = vec3<f32>(1.0, 0.0, 0.0); // red
-    // out.normal = vertex.normal;
-    // out.normal = material.color.xyz;
+    out.normal = vertex.normal;
     // out.world_normal = mat3x3<f32>(
     //     mesh.inverse_transpose_model[0].xyz,
     //     mesh.inverse_transpose_model[1].xyz,
     //     mesh.inverse_transpose_model[2].xyz
     // ) * vertex.normal;
-    out.uv = vertex.uv * material.scale;
+    out.uv = (vertex.uv + material.offset) * material.scale;
+    // out.color = vec3<f32>(1.0, 0.0, 0.0); // red
+    out.color = material.color;
     return out;
 }
 
@@ -46,5 +48,6 @@ fn vertex(vertex: Vertex) -> VertexOutput {
 fn fragment(in: VertexOutput) -> [[location(0)]] vec4<f32> {
     // return vec4<f32>(in.normal, 1.0);
     return vec4<f32>(in.uv, 0.0, 1.0);
+    // return in.color;
 }
 
