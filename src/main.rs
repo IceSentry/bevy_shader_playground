@@ -2,6 +2,7 @@ mod camera;
 
 use bevy::{
     ecs::system::{lifetimeless::SRes, SystemParamItem},
+    input::system::exit_on_esc_system,
     pbr::{MaterialPipeline, NotShadowCaster, NotShadowReceiver},
     prelude::*,
     reflect::TypeUuid,
@@ -14,28 +15,26 @@ use bevy::{
         renderer::RenderDevice,
     },
 };
-use bevy_inspector_egui::{widgets::InspectorQuery, Inspectable, InspectorPlugin};
+use bevy_egui::{
+    egui::{self, CollapsingHeader, Ui},
+    EguiContext, EguiPlugin,
+};
 
 use camera::{pan_orbit_camera, PanOrbitCamera};
 
-#[derive(Inspectable, Default)]
-struct MaterialsInspector {
-    materials: InspectorQuery<&'static mut Handle<CustomMaterial>>,
-}
-
-// #[derive(Component, Inspectable, Default)]
-// struct Label {
-//     value: String,
-// }
+#[derive(Component)]
+struct Label(String);
 
 fn main() {
     App::new()
         .add_plugins(DefaultPlugins)
+        .add_plugin(EguiPlugin)
         .add_plugin(MaterialPlugin::<CustomMaterial>::default())
         .add_startup_system(spawn_camera)
         .add_startup_system(spawn_scene)
         .add_system(pan_orbit_camera)
-        .add_plugin(InspectorPlugin::<MaterialsInspector>::new())
+        .add_system(inspector_panel)
+        .add_system(exit_on_esc_system)
         .run();
 }
 
@@ -85,6 +84,7 @@ fn spawn_scene(
     // red sphere
     commands
         .spawn()
+        .insert(Label("RED sphere".into()))
         .insert_bundle(MaterialMeshBundle {
             mesh: sphere_mesh.clone(),
             transform: Transform::from_xyz(-2.25, 1.0, 0.0),
@@ -96,6 +96,7 @@ fn spawn_scene(
     // green sphere
     commands
         .spawn()
+        .insert(Label("GREEN sphere".into()))
         .insert_bundle(MaterialMeshBundle {
             mesh: sphere_mesh.clone(),
             transform: Transform::from_xyz(0.0, 1.0, 0.0),
@@ -107,6 +108,7 @@ fn spawn_scene(
     // blue sphere
     commands
         .spawn()
+        .insert(Label("BLUE sphere".into()))
         .insert_bundle(MaterialMeshBundle {
             mesh: sphere_mesh,
             transform: Transform::from_xyz(2.25, 1.0, 0.0),
@@ -118,6 +120,7 @@ fn spawn_scene(
     // white cube
     commands
         .spawn()
+        .insert(Label("WHITE cube".into()))
         .insert_bundle(MaterialMeshBundle {
             mesh: meshes.add(Mesh::from(shape::Cube {
                 ..Default::default()
@@ -131,6 +134,7 @@ fn spawn_scene(
     // plane
     commands
         .spawn()
+        .insert(Label("WHITE plane".into()))
         .insert_bundle(MaterialMeshBundle {
             mesh: meshes.add(Mesh::from(shape::Plane { size: 2.5 })),
             transform: Transform::from_xyz(0.0, 2.0, -5.0).with_rotation(Quat::from_euler(
@@ -145,11 +149,43 @@ fn spawn_scene(
         .insert_bundle((NotShadowCaster, NotShadowReceiver));
 }
 
-#[derive(Debug, Clone, TypeUuid, AsStd140, Inspectable)]
+fn inspector_panel(
+    egui_context: Res<EguiContext>,
+    mut query: Query<(&Label, &Handle<CustomMaterial>)>,
+    mut custom_materials: ResMut<Assets<CustomMaterial>>,
+) {
+    egui::panel::SidePanel::new(egui::panel::Side::Left, "side_panel").show(
+        egui_context.ctx(),
+        |ui| {
+            ui.heading("Inspector");
+            ui.label("Custom Materials");
+            for (label, mat) in query.iter_mut() {
+                if let Some(mat) = custom_materials.get_mut(mat) {
+                    material_inspector(ui, label, mat);
+                }
+            }
+        },
+    );
+}
+
+fn material_inspector(ui: &mut Ui, label: &Label, material: &mut CustomMaterial) {
+    CollapsingHeader::new(label.0.as_str())
+        .default_open(true)
+        .show(ui, |ui| {
+            ui.horizontal(|ui| {
+                ui.label("Color: ");
+                let mut color = material.color.to_array();
+                ui.color_edit_button_rgba_unmultiplied(&mut color);
+                material.color = Vec4::from_slice(&color);
+            });
+            ui.add(egui::Slider::new(&mut material.scale, 0.0..=5.0).text("Scale: "));
+        });
+}
+
+#[derive(Debug, Clone, TypeUuid, AsStd140)]
 #[uuid = "18600cbe-b8b5-41e8-bbf6-1cad0005b309"]
 struct CustomMaterial {
     color: Vec4,
-    #[inspectable(min = 0.0, max = 10.0)]
     scale: f32,
 }
 
