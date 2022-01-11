@@ -23,6 +23,7 @@ fn main() {
     App::new()
         .add_plugins(DefaultPlugins)
         .add_plugin(EguiPlugin)
+        .add_startup_system(hot_reload)
         .add_startup_system(spawn_camera)
         .add_system(pan_orbit_camera)
         .add_plugin(MaterialPlugin::<CustomMaterial>::default())
@@ -32,6 +33,18 @@ fn main() {
         .add_system(inspector_panel)
         .add_system(exit_on_esc_system)
         .run();
+}
+
+fn hot_reload(asset_server: Res<AssetServer>) {
+    asset_server
+        .watch_for_changes()
+        .expect("Failed to start hot reload");
+
+    // WARN This is a hack
+    // It doesn't always work and especially when changing an asset path or adding a new shader
+    // If it doesn't work, try running `cargo clean`
+    let _ = asset_server.load::<Shader, _>("shaders/custom_material.wgsl");
+    let _ = asset_server.load::<Shader, _>("shaders/gradient.wgsl");
 }
 
 fn spawn_camera(mut commands: Commands) {

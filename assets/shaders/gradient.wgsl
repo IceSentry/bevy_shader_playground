@@ -43,7 +43,7 @@ fn inverse_lerp(a: f32, b: f32, v: f32) -> f32 {
 fn fragment(in: VertexOutput) -> [[location(0)]] vec4<f32> {
     // return smoothStep(material.color_a, material.color_b, in.uv.xxxx);
     var t = clamp(inverse_lerp(material.color_start, material.color_end, in.uv.x), 0.0, 1.0);
-    // t = fract(t);
+    t = fract(t);
     return mix(material.color_a, material.color_b, vec4<f32>(t));
 }
 
