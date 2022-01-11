@@ -2,6 +2,7 @@ mod camera;
 mod custom_material;
 mod gradient;
 mod inspector;
+mod macros;
 
 use bevy::{
     input::system::exit_on_esc_system,

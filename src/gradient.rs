@@ -14,7 +14,7 @@ use bevy::{
 };
 use bevy_egui::egui::{self, CollapsingHeader, Ui};
 
-use crate::Label;
+use crate::{impl_shader_material, impl_shader_render_asset, Label};
 
 pub fn inspector(ui: &mut Ui, label: &Label, material: &mut GradientMaterial) {
     CollapsingHeader::new(label.0.as_str())
@@ -63,71 +63,5 @@ impl GradientMaterial {
     }
 }
 
-#[derive(Clone)]
-pub struct GpuGradientMaterial {
-    _buffer: Buffer,
-    bind_group: BindGroup,
-}
-
-impl RenderAsset for GradientMaterial {
-    type ExtractedAsset = GradientMaterial;
-    type PreparedAsset = GpuGradientMaterial;
-    type Param = (SRes<RenderDevice>, SRes<MaterialPipeline<Self>>);
-    fn extract_asset(&self) -> Self::ExtractedAsset {
-        self.clone()
-    }
-
-    fn prepare_asset(
-        extracted_asset: Self::ExtractedAsset,
-        (render_device, material_pipeline): &mut SystemParamItem<Self::Param>,
-    ) -> Result<Self::PreparedAsset, PrepareAssetError<Self::ExtractedAsset>> {
-        let buffer = render_device.create_buffer_with_data(&BufferInitDescriptor {
-            contents: extracted_asset.as_std140().as_bytes(),
-            label: Some("GradientMaterial"),
-            usage: BufferUsages::UNIFORM | BufferUsages::COPY_DST,
-        });
-        let bind_group = render_device.create_bind_group(&BindGroupDescriptor {
-            entries: &[BindGroupEntry {
-                binding: 0,
-                resource: buffer.as_entire_binding(),
-            }],
-            label: None,
-            layout: &material_pipeline.material_layout,
-        });
-
-        Ok(GpuGradientMaterial {
-            _buffer: buffer,
-            bind_group,
-        })
-    }
-}
-
-impl Material for GradientMaterial {
-    fn vertex_shader(asset_server: &AssetServer) -> Option<Handle<Shader>> {
-        Some(asset_server.load("shaders/gradient.wgsl"))
-    }
-
-    fn fragment_shader(asset_server: &AssetServer) -> Option<Handle<Shader>> {
-        Some(asset_server.load("shaders/gradient.wgsl"))
-    }
-
-    fn bind_group(render_asset: &<Self as RenderAsset>::PreparedAsset) -> &BindGroup {
-        &render_asset.bind_group
-    }
-
-    fn bind_group_layout(render_device: &RenderDevice) -> BindGroupLayout {
-        render_device.create_bind_group_layout(&BindGroupLayoutDescriptor {
-            entries: &[BindGroupLayoutEntry {
-                binding: 0,
-                visibility: ShaderStages::VERTEX_FRAGMENT,
-                ty: BindingType::Buffer {
-                    ty: BufferBindingType::Uniform,
-                    has_dynamic_offset: false,
-                    min_binding_size: BufferSize::new(GradientMaterial::std140_size_static() as u64),
-                },
-                count: None,
-            }],
-            label: None,
-        })
-    }
-}
+impl_shader_render_asset!(GradientMaterial);
+impl_shader_material!(GradientMaterial, "shaders/gradient.wgsl");
