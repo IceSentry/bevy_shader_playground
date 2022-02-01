@@ -39,11 +39,24 @@ fn inverse_lerp(a: f32, b: f32, v: f32) -> f32 {
   return (v - a)/(b - a);
 }
 
+let pi: f32 = 3.14159265359;
+let tau: f32 = 6.28318530718;
+
 [[stage(fragment)]]
 fn fragment(in: VertexOutput) -> [[location(0)]] vec4<f32> {
     // return smoothStep(material.color_a, material.color_b, in.uv.xxxx);
-    var t = clamp(inverse_lerp(material.color_start, material.color_end, in.uv.x), 0.0, 1.0);
-    t = fract(t);
-    return mix(material.color_a, material.color_b, vec4<f32>(t));
+
+    // var t = clamp(inverse_lerp(material.color_start, material.color_end, in.uv.x), 0.0, 1.0);
+    // t = fract(t);
+    // return mix(material.color_a, material.color_b, vec4<f32>(t));
+
+    var x_offset = in.uv.y;
+    var t = cos((in.uv.x + x_offset) * tau * 5.0) * 0.5 + 0.5;
+
+    // triangle wave
+    // var t = abs(fract(in.uv.x * 5.0) * 2.0 - 1.0);
+
+
+    return vec4<f32>(t);
 }
 

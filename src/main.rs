@@ -3,6 +3,7 @@ mod custom_material;
 mod gradient;
 mod inspector;
 mod macros;
+mod shapes;
 
 use bevy::{
     input::system::exit_on_esc_system,
@@ -28,6 +29,7 @@ fn main() {
         .add_system(pan_orbit_camera)
         .add_plugin(MaterialPlugin::<CustomMaterial>::default())
         .add_startup_system(spawn_scene)
+        .add_startup_system(spawn_colored_spheres)
         .add_plugin(MaterialPlugin::<GradientMaterial>::default())
         .add_startup_system(spawn_scene_gradient)
         .add_system(inspector_panel)
@@ -41,8 +43,7 @@ fn hot_reload(asset_server: Res<AssetServer>) {
         .expect("Failed to start hot reload");
 
     // WARN This is a hack
-    // It doesn't always work and especially when changing an asset path or adding a new shader
-    // If it doesn't work, try running `cargo clean`
+    // It seems to only work after a cargo clean :(
     let _ = asset_server.load::<Shader, _>("shaders/custom_material.wgsl");
     let _ = asset_server.load::<Shader, _>("shaders/gradient.wgsl");
 }
@@ -70,7 +71,7 @@ fn spawn_scene(
 ) {
     // plane
     commands.spawn_bundle(PbrBundle {
-        mesh: meshes.add(Mesh::from(shape::Plane { size: 10.0 })),
+        mesh: meshes.add(Mesh::from(shape::Plane { size: 20.0 })),
         material: standard_materials.add(Color::rgb(0.3, 0.5, 0.3).into()),
         ..Default::default()
     });
@@ -86,6 +87,43 @@ fn spawn_scene(
         ..Default::default()
     });
 
+    // white cube
+    commands
+        .spawn()
+        .insert(Label("WHITE cube".into()))
+        .insert_bundle(MaterialMeshBundle {
+            mesh: meshes.add(Mesh::from(shape::Cube {
+                ..Default::default()
+            })),
+            transform: Transform::from_xyz(0.0, 1.0, 3.0),
+            material: custom_materials.add(CustomMaterial::new(Color::WHITE)),
+            ..Default::default()
+        })
+        .insert_bundle((NotShadowCaster, NotShadowReceiver));
+
+    // plane
+    commands
+        .spawn()
+        .insert(Label("WHITE plane".into()))
+        .insert_bundle(MaterialMeshBundle {
+            mesh: meshes.add(Mesh::from(shape::Plane { size: 2.5 })),
+            transform: Transform::from_xyz(0.0, 2.0, -5.0).with_rotation(Quat::from_euler(
+                EulerRot::XYZ,
+                std::f32::consts::FRAC_PI_2,
+                0.0,
+                0.0,
+            )),
+            material: custom_materials.add(CustomMaterial::new(Color::WHITE)),
+            ..Default::default()
+        })
+        .insert_bundle((NotShadowCaster, NotShadowReceiver));
+}
+
+fn spawn_colored_spheres(
+    mut commands: Commands,
+    mut meshes: ResMut<Assets<Mesh>>,
+    mut custom_materials: ResMut<Assets<CustomMaterial>>,
+) {
     let sphere_mesh = meshes.add(Mesh::from(shape::UVSphere {
         ..Default::default()
     }));
@@ -125,37 +163,6 @@ fn spawn_scene(
             ..Default::default()
         })
         .insert_bundle((NotShadowCaster, NotShadowReceiver));
-
-    // white cube
-    commands
-        .spawn()
-        .insert(Label("WHITE cube".into()))
-        .insert_bundle(MaterialMeshBundle {
-            mesh: meshes.add(Mesh::from(shape::Cube {
-                ..Default::default()
-            })),
-            transform: Transform::from_xyz(0.0, 1.0, 3.0),
-            material: custom_materials.add(CustomMaterial::new(Color::WHITE)),
-            ..Default::default()
-        })
-        .insert_bundle((NotShadowCaster, NotShadowReceiver));
-
-    // plane
-    commands
-        .spawn()
-        .insert(Label("WHITE plane".into()))
-        .insert_bundle(MaterialMeshBundle {
-            mesh: meshes.add(Mesh::from(shape::Plane { size: 2.5 })),
-            transform: Transform::from_xyz(0.0, 2.0, -5.0).with_rotation(Quat::from_euler(
-                EulerRot::XYZ,
-                std::f32::consts::FRAC_PI_2,
-                0.0,
-                0.0,
-            )),
-            material: custom_materials.add(CustomMaterial::new(Color::WHITE)),
-            ..Default::default()
-        })
-        .insert_bundle((NotShadowCaster, NotShadowReceiver));
 }
 
 fn spawn_scene_gradient(
@@ -175,6 +182,22 @@ fn spawn_scene_gradient(
                 0.0,
                 0.0,
             )),
+            material: gradient_materials.add(GradientMaterial::new(Color::RED, Color::BLUE)),
+            ..Default::default()
+        })
+        .insert_bundle((NotShadowCaster, NotShadowReceiver));
+
+    // Cylinder
+    commands
+        .spawn()
+        .insert(Label("Gradient cylinder".into()))
+        .insert_bundle(MaterialMeshBundle {
+            mesh: meshes.add(Mesh::from(shapes::Cylinder {
+                height: 2.5,
+                radius: 1.0,
+                ..Default::default()
+            })),
+            transform: Transform::from_xyz(6.0, 2.0, -5.0),
             material: gradient_materials.add(GradientMaterial::new(Color::RED, Color::BLUE)),
             ..Default::default()
         })

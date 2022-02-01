@@ -39,8 +39,8 @@ fn vertex(vertex: Vertex) -> VertexOutput {
     //     mesh.inverse_transpose_model[2].xyz
     // ) * vertex.normal;
     out.uv = (vertex.uv + material.offset) * material.scale;
-    // out.color = vec4<f32>(1.0, 0.0, 0.0, 1.0); // red
-    out.color = material.color;
+    out.color = vec4<f32>(1.0, 0.0, 0.0, 1.0); // red
+    // out.color = material.color;
     return out;
 }
 

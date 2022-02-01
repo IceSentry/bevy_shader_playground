@@ -1,3 +1,5 @@
+/// This macro will generate a default impl RenderAsset for a Maeterial
+/// It assumes that the struct derives AsStd140
 #[macro_export]
 macro_rules! impl_shader_render_asset {
     ($material:ident) => {
@@ -25,7 +27,6 @@ macro_rules! impl_shader_render_asset {
                     label: Some(stringify!($material)),
                     usage: BufferUsages::UNIFORM | BufferUsages::COPY_DST,
                 });
-                // material_pipeline.spe
                 let bind_group = render_device.create_bind_group(&BindGroupDescriptor {
                     entries: &[BindGroupEntry {
                         binding: 0,
@@ -34,7 +35,6 @@ macro_rules! impl_shader_render_asset {
                     label: None,
                     layout: &material_pipeline.material_layout,
                 });
-
                 Ok(GpuMaterial {
                     _buffer: buffer,
                     bind_group,
@@ -48,7 +48,6 @@ macro_rules! impl_shader_render_asset {
 /// It assumes that:
 /// - The struct derives AsStd140
 /// - The shader file contains a vertex and fragment shader
-/// - The ShaderStages is set to VERTEX_FRAGMENT
 #[macro_export]
 macro_rules! impl_shader_material {
     ($material:ident, $shader_file:expr) => {
