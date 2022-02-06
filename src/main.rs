@@ -1,3 +1,9 @@
+#![warn(clippy::pedantic)]
+#![allow(clippy::module_name_repetitions)]
+#![allow(clippy::default_trait_access)]
+#![allow(clippy::cast_precision_loss)]
+#![allow(clippy::cast_possible_truncation)]
+
 mod camera;
 mod custom_material;
 mod gradient;
@@ -37,15 +43,11 @@ fn main() {
         .run();
 }
 
+#[allow(clippy::needless_pass_by_value)]
 fn hot_reload(asset_server: Res<AssetServer>) {
     asset_server
         .watch_for_changes()
         .expect("Failed to start hot reload");
-
-    // WARN This is a hack
-    // It seems to only work after a cargo clean :(
-    let _ = asset_server.load::<Shader, _>("shaders/custom_material.wgsl");
-    let _ = asset_server.load::<Shader, _>("shaders/gradient.wgsl");
 }
 
 fn spawn_camera(mut commands: Commands) {

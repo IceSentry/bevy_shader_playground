@@ -1,5 +1,5 @@
-/// This macro will generate a default impl RenderAsset for a Maeterial
-/// It assumes that the struct derives AsStd140
+/// This macro will generate a default impl `RenderAsset` for a Maeterial
+/// It assumes that the struct derives `AsStd140`
 #[macro_export]
 macro_rules! impl_shader_render_asset {
     ($material:ident) => {
@@ -46,7 +46,7 @@ macro_rules! impl_shader_render_asset {
 
 /// This macro will generate a default impl Material.
 /// It assumes that:
-/// - The struct derives AsStd140
+/// - The struct derives `AsStd140`
 /// - The shader file contains a vertex and fragment shader
 #[macro_export]
 macro_rules! impl_shader_material {

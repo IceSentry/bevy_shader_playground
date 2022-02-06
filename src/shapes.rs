@@ -12,7 +12,7 @@ pub struct Cylinder {
     pub height: f32,
     /// Number of vertices around each horizontal slice of the cylinder
     pub resolution: u32,
-    // Number of vertical subdivisionss
+    /// Number of vertical subdivisionss
     pub subdivisions: u32,
 }
 
@@ -46,7 +46,7 @@ impl From<Cylinder> for Mesh {
 
         // Shaft vertices
         let h_step = c.height / c.subdivisions as f32;
-        for i in 0..(c.subdivisions + 1) {
+        for i in 0..=c.subdivisions {
             add_ring(c.height * 0.5 - h_step * i as f32, false);
         }
 
@@ -61,6 +61,7 @@ impl From<Cylinder> for Mesh {
 
         let index_count = ((6 * c.subdivisions * c.resolution) + 6 * c.resolution) as usize;
         let mut indices = Vec::with_capacity(index_count);
+
         // Shaft quads
         for i in 0..c.subdivisions {
             let base1 = c.resolution * i;

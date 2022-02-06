@@ -8,7 +8,9 @@ use bevy::{
         render_asset::{PrepareAssetError, RenderAsset},
         render_resource::{
             std140::{AsStd140, Std140},
-            *,
+            BindGroup, BindGroupDescriptor, BindGroupEntry, BindGroupLayout,
+            BindGroupLayoutDescriptor, BindGroupLayoutEntry, BindingType, Buffer,
+            BufferBindingType, BufferInitDescriptor, BufferSize, BufferUsages, ShaderStages,
         },
         renderer::RenderDevice,
     },

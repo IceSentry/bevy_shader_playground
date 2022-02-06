@@ -11,14 +11,14 @@ use crate::{
 };
 
 pub fn inspector_panel(
-    egui_context: Res<EguiContext>,
+    mut egui_context: ResMut<EguiContext>,
     mut color_materials_query: Query<(&Label, &Handle<CustomMaterial>)>,
     mut gradient_materials_query: Query<(&Label, &Handle<GradientMaterial>)>,
     mut custom_materials: ResMut<Assets<CustomMaterial>>,
     mut gradient_materials: ResMut<Assets<GradientMaterial>>,
 ) {
     egui::panel::SidePanel::new(egui::panel::Side::Left, "side_panel").show(
-        egui_context.ctx(),
+        egui_context.ctx_mut(),
         |ui| {
             ui.heading("Inspector");
             ui.separator();
