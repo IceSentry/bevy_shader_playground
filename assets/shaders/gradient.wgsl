@@ -50,7 +50,7 @@ fn fragment(in: VertexOutput) -> [[location(0)]] vec4<f32> {
     // t = fract(t);
     // return mix(material.color_a, material.color_b, vec4<f32>(t));
 
-    var x_offset = in.uv.y;
+    var x_offset = cos(in.uv.y * tau * 8.0) * 0.05;
     var t = cos((in.uv.x + x_offset) * tau * 5.0) * 0.5 + 0.5;
 
     // triangle wave

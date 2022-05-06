@@ -39,6 +39,7 @@ fn vertex(vertex: Vertex) -> VertexOutput {
     //     mesh.inverse_transpose_model[2].xyz
     // ) * vertex.normal;
     out.uv = (vertex.uv + material.offset) * material.scale;
+    // out.color = vec4<f32>(1.0, 0.0, 0.0, 1.0);
     out.color = material.color;
     return out;
 }
@@ -46,7 +47,6 @@ fn vertex(vertex: Vertex) -> VertexOutput {
 [[stage(fragment)]]
 fn fragment(in: VertexOutput) -> [[location(0)]] vec4<f32> {
     // return vec4<f32>(in.normal, 1.0);
-    // return vec4<f32>(in.uv, 0.0, 1.0);
-    return in.color;
+    return vec4<f32>(in.uv, 0.0, 1.0);
+    // return in.color;
 }
-

@@ -16,12 +16,18 @@ use bevy::{
 };
 use bevy_egui::egui::{self, CollapsingHeader, Ui};
 
-use crate::{impl_shader_material, impl_shader_render_asset, Label};
+use crate::{impl_shader_material, impl_shader_render_asset, inspector::inspect_transform, Label};
 
-pub fn inspector(ui: &mut Ui, label: &Label, material: &mut GradientMaterial) {
+pub fn inspector(
+    ui: &mut Ui,
+    label: &Label,
+    material: &mut GradientMaterial,
+    transform: &mut Transform,
+) {
     CollapsingHeader::new(label.0.as_str())
         .default_open(true)
         .show(ui, |ui| {
+            // inspect_transform(ui, transform.local_x());
             ui.horizontal(|ui| {
                 ui.label("Color A: ");
                 let mut color = material.color_a.to_array();

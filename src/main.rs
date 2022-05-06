@@ -199,7 +199,16 @@ fn spawn_scene_gradient(
                 radius: 1.0,
                 ..Default::default()
             })),
-            transform: Transform::from_xyz(6.0, 2.0, -5.0),
+            transform: Transform {
+                translation: Vec3::new(6.0, 2.0, -5.0),
+                rotation: Quat::from_euler(
+                    EulerRot::XYZ,
+                    0.0,
+                    std::f32::consts::FRAC_PI_2,
+                    std::f32::consts::FRAC_PI_2,
+                ),
+                ..Default::default()
+            },
             material: gradient_materials.add(GradientMaterial::new(Color::RED, Color::BLUE)),
             ..Default::default()
         })
