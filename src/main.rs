@@ -12,6 +12,7 @@ mod macros;
 mod shapes;
 
 use bevy::{
+    asset::AssetServerSettings,
     input::system::exit_on_esc_system,
     pbr::{NotShadowCaster, NotShadowReceiver},
     prelude::*,
@@ -28,6 +29,10 @@ pub struct Label(String);
 
 fn main() {
     App::new()
+        .insert_resource(AssetServerSettings {
+            watch_for_changes: true,
+            ..default()
+        })
         .add_plugins(DefaultPlugins)
         .add_plugin(EguiPlugin)
         .add_startup_system(hot_reload)
@@ -45,9 +50,9 @@ fn main() {
 
 #[allow(clippy::needless_pass_by_value)]
 fn hot_reload(asset_server: Res<AssetServer>) {
-    asset_server
-        .watch_for_changes()
-        .expect("Failed to start hot reload");
+    // asset_server
+    // .watch_for_changes()
+    // .expect("Failed to start hot reload");
 }
 
 fn spawn_camera(mut commands: Commands) {
